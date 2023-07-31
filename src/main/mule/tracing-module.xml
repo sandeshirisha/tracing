@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracing="http://www.mulesoft.org/schema/mule/tracing"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tracing http://www.mulesoft.org/schema/mule/tracing/current/mule-tracing.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="64bc29f8-8de3-4a0a-88e8-d99f5756672c" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="tracing-module-with-correlatio-id" doc:id="8ed7d8b0-fd6e-462a-b6dd-1fc1123d2591" >
+		<http:listener doc:name="/correlationId" doc:id="5971be95-6c84-4aad-be13-a7ceb5f39aca" config-ref="HTTP_Listener_config" path="/correlationId" allowedMethods="POST"/>
+		<logger level="TRACE" doc:name="Logger" doc:id="bc42d162-4144-4640-9711-02cab28512df" message="#[payload]" />
+		<tracing:with-correlation-id doc:name="With CorrelationID" doc:id="a18ac290-f5da-49cd-a529-da0cb0c1ec78" correlationId="#[payload.number]">
+			<logger level="TRACE" doc:name="Logger" doc:id="48489f0f-7cae-46f3-a10f-445d713fe538" message="#[payload]" category="customlog1"/>
+
+		</tracing:with-correlation-id>
+		<logger level="INFO" doc:name="Logger" doc:id="442c2aa5-89b8-4538-a3f4-10fa154eb042" message="#[payload]"/>
+	</flow>
+	<flow name="tracing-module-set-log-variable" doc:id="a4a0630a-477c-4b05-ac4e-00d52c88d39a" >
+		<http:listener doc:name="Listener" doc:id="6473af7b-9c3a-444f-873f-216c70cb8a98" config-ref="HTTP_Listener_config" path="/order" allowedMethods="POST"/>
+		<tracing:set-logging-variable doc:name="payload.customerId" doc:id="f8ea091a-5d99-4210-a05e-a005d4817c03" variableName="customerId" value="#[payload.customerId]"/>
+		<tracing:set-logging-variable doc:name="requestPath" doc:id="abdaa010-39fe-4edf-b249-1b93ab2e2a12" variableName="requestPath" value='#["$(attributes.method):$(attributes.requestPath)"]'/>
+		<logger level="INFO" doc:name="payload" doc:id="d8278594-4e9c-41b3-9812-d7279e036075" message="#[output application/json --- payload]"/>
+		<tracing:remove-logging-variable doc:name="Remove logging variable : requestPath" doc:id="a7af53ef-1eb7-4bc0-b45a-9643e86b027c" variableName="requestPath"/>
+		<logger level="INFO" doc:name="payload" doc:id="fdf0924e-a5b2-472a-96de-c5c16bb8b317" message="#[payload]"/>
+		<tracing:clear-logging-variables doc:name="Clear logging variables" doc:id="7ed1f335-dd23-4551-854a-18ed84766355" />
+		<logger level="INFO" doc:name="payload" doc:id="08903070-8bc9-4759-bbb9-a36fc25b26e0" message="#[payload]"/>
+		<tracing:with-correlation-id doc:name="With CorrelationID" doc:id="e8c7d90c-72c4-4a8e-a80d-0fd48c1c69fb" correlationId='#[correlationId ++ "PhiDimensions"]'>
+			<logger level="INFO" doc:name="payload" doc:id="6c0b186e-6b0a-4839-a84d-a61a5939db46" message="#[payload]"/>
+		</tracing:with-correlation-id>
+		<logger level="INFO" doc:name="payload" doc:id="10fdcb9c-a937-4ffe-b9d4-3733f073dcd6" message="#[payload]"/>
+	</flow>
+<!-- [STUDIO:"tracingmodule2Flow"]	<flow name="tracingmodule2Flow" >
+		<http:listener  config-ref="HTTP_Listener_config" path="/order"/>
+		<tracing:set-logging-variable variableName="#[customerId]" value="#[payload.customerId]"/>
+		<tracing:set-logging-variable  variableName="requestPath" value='#["$(attributes.method):$(attributes.requestPath)"]'/>
+		<logger level="INFO" message="#[output application/json &#45;&#45;- payload]"/>
+	</flow> [STUDIO] -->
+</mule>
