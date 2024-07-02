@@ -12,12 +12,12 @@ http://www.mulesoft.org/schema/mule/tracing http://www.mulesoft.org/schema/mule/
 	</http:listener-config>
 	<flow name="tracing-module-with-correlatio-id" doc:id="8ed7d8b0-fd6e-462a-b6dd-1fc1123d2591" >
 		<http:listener doc:name="/correlationId" doc:id="5971be95-6c84-4aad-be13-a7ceb5f39aca" config-ref="HTTP_Listener_config" path="/correlationId" allowedMethods="POST"/>
-		<logger level="TRACE" doc:name="Logger" doc:id="bc42d162-4144-4640-9711-02cab28512df" message="#[payload]" />
+		<logger level="TRACE" doc:name="start-log" doc:id="bc42d162-4144-4640-9711-02cab28512df" message="#[payload]" />
 		<tracing:with-correlation-id doc:name="With CorrelationID" doc:id="a18ac290-f5da-49cd-a529-da0cb0c1ec78" correlationId="#[payload.number]">
 			<logger level="TRACE" doc:name="Logger" doc:id="48489f0f-7cae-46f3-a10f-445d713fe538" message="#[payload]" category="customlog1"/>
 
 		</tracing:with-correlation-id>
-		<logger level="INFO" doc:name="Logger" doc:id="442c2aa5-89b8-4538-a3f4-10fa154eb042" message="#[payload]"/>
+		<logger level="INFO" doc:name="end-log" doc:id="442c2aa5-89b8-4538-a3f4-10fa154eb042" message="#[payload]"/>
 	</flow>
 	<flow name="tracing-module-set-log-variable" doc:id="a4a0630a-477c-4b05-ac4e-00d52c88d39a" >
 		<http:listener doc:name="Listener" doc:id="6473af7b-9c3a-444f-873f-216c70cb8a98" config-ref="HTTP_Listener_config" path="/order" allowedMethods="POST"/>
